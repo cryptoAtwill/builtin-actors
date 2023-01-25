@@ -25,6 +25,7 @@ fil_actor_power = { version = "10.0.0-alpha.1", path = "./actors/power", feature
 fil_actor_reward = { version = "10.0.0-alpha.1", path = "./actors/reward", features = ["fil-actor"] }
 fil_actor_system = { version = "10.0.0-alpha.1", path = "./actors/system", features = ["fil-actor"] }
 fil_actor_verifreg = { version = "10.0.0-alpha.1", path = "./actors/verifreg", features = ["fil-actor"] }
+ipc-gateway = { path = "./ipc-actors/gateway" }
 
 [build-dependencies]
 fil_actor_bundler = "4.0.0"

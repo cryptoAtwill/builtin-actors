@@ -66,6 +66,12 @@ fn network_name() -> String {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
+    // For IPC related
+    let gateway_name = String::from("ipcgw");
+    let gateway_bytecode = String::from("ipc_gateway");
+    let gateway_package = String::from("ipc-gateway");
+    let gateway_code_id = 13;
+
     // Cargo executable location.
     let cargo = std::env::var_os("CARGO").expect("no CARGO env var");
     println!("cargo:warning=cargo: {:?}", &cargo);
@@ -78,8 +84,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:warning=out_dir: {:?}", &out_dir);
 
     // Compute the package names.
-    let packages =
+    let mut packages =
         ACTORS.iter().map(|(pkg, _)| String::from("fil_actor_") + pkg).collect::<Vec<String>>();
+    // packages.push(gateway_package.clone());
 
     let manifest_path =
         Path::new(&std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR unset"))
@@ -175,6 +182,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
         println!("cargo:warning=added {} ({}) to bundle with CID {}", name, id, cid);
     }
+
+    // ipc-gateway
+    let bytecode_path = Path::new(&out_dir)
+        .join("wasm32-unknown-unknown/wasm")
+        .join(format!("{}.wasm", &gateway_bytecode));
+
+    let cid = bundler
+        .add_from_file(gateway_code_id, gateway_name.clone(), None, &bytecode_path)
+        .unwrap_or_else(|err| {
+            panic!("failed to add file {:?} to bundle for actor {}: {}", bytecode_path, gateway_code_id, err)
+        });
+    println!("cargo:warning=added {} ({}) to bundle with CID {}", gateway_name, gateway_code_id, cid);
+
     bundler.finish().expect("failed to finish bundle");
 
     println!("cargo:warning=bundle={}", dst.display());
